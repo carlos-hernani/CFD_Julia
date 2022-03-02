@@ -1,8 +1,9 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
 using CPUTime
 using Printf
 using Plots
-font = Plots.font("Times New Roman", 18)
-pyplot(guidefont=font, xtickfont=font, ytickfont=font, legendfont=font)
+
 
 #-----------------------------------------------------------------------------#
 # Compute L-2 norm for a vector

@@ -1,8 +1,9 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+Pkg.add(["CPUTime", "Printf", "Plots"])
 using CPUTime
 using Printf
 using Plots
-font = Plots.font("Times New Roman", 18)
-pyplot(guidefont=font, xtickfont=font, ytickfont=font, legendfont=font)
 
 #-----------------------------------------------------------------------------#
 # Compute numerical solution

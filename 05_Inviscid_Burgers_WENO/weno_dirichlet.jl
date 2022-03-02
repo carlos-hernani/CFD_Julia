@@ -1,8 +1,10 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+Pkg.add(["CPUTime", "Printf", "Plots", "PyPlot"])
 using CPUTime
 using Printf
 using Plots
-font = Plots.font("Times New Roman", 18)
-pyplot(guidefont=font, xtickfont=font, ytickfont=font, legendfont=font)
+
 
 #-----------------------------------------------------------------------------#
 # Compute L-2 norm for a vector
@@ -250,8 +252,8 @@ end
 #---------------------------------------------------------------------------#
 # main program
 #---------------------------------------------------------------------------#
-nx = 200
-ns = 10
+nx = 2000 #number of grid cells in x
+ns = 100 # ?
 dt = 0.0001
 tm = 0.25
 
@@ -264,12 +266,12 @@ numerical(nx,ns,nt,dx,dt,u)
 
 x = Array(0:dx:1.0)
 
-solution = open("solution_d.txt", "w")
+solution = open("solution_d.csv", "w")
 
 for i = 1:nx+1
-    write(solution, string(x[i]), " ",)
+    write(solution, string(x[i]), ",",)
     for j = 1:ns
-        write(solution, string(u[i,j]), " ")
+        write(solution, string(u[i,j]), ",")
     end
     write(solution, "\n",)
 end

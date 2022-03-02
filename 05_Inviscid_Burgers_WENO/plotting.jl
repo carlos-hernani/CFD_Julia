@@ -1,3 +1,6 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+Pkg.add(["CPUTime", "Printf", "Plots", "PyPlot", "CSV"])
 using DelimitedFiles
 
 using CSV
@@ -5,14 +8,14 @@ using PyPlot
 
 rc("font", family="Arial", size=16.0)
 #pyplot(guidefont=font, xtickfont=font, ytickfont=font, legendfont=font)
-ns = 10
+ns = 100
 tf = 0.25
 
-solution = readdlm("solution.txt")#, datarow = 3, type=Float64)
+solution = readdlm("solution.")#, datarow = 3, type=Float64)
 x =  solution[:,1]
 u = solution[:,2:ns+1]
 
-solution = readdlm("solution_d.txt")#, datarow = 3, type=Float64)
+solution = readdlm("solution_d.csv")#, datarow = 3, type=Float64)
 xd =  solution[:,1]
 ud = solution[:,2:ns+1]
 
