@@ -102,9 +102,23 @@ Periodic Boundary Conditions
 
 Creates an array with extra values with imposed periodicity.
 
+    nx :int: number of x points
+    u :array: solution field, dims: (nx)
+
+    Returns:
+        pbc_u :array: solution field with pbc, dims: (nx+4)
 
 """
 function bcs_periodic(nx, u)
+    pbc_u = Array{Float64}(undef, nx+4)
+    pbc_u[3:nx+2] = u
+    pbc_u[1] = pbc_u[nx+1]
+    pbc_u[2] = pbc_u[nx+2]
+    pbc_u[nx+3] = pbc_u[3]
+    pbc_u[nx+4] = pbc_u[4]
+    return pbc_u
+end
+
 
 """
 Computes the absolute value of the flux Jacobian
@@ -121,36 +135,20 @@ Periodic Boundary Conditions!! (1,2,n-1,n) 3 possible ways:
     3. Modular indexing: zero-index doesn't exist
 
     nx :int: number of x points
-    u :array: solution field, dims: (nx, ns)
+    u :array: solution field, dims: (nx)
 
     Modifies:
         a :array: alpha, wave speed
 
 """
 function wavespeed!(nx, u, a)
-    u_aux = Array{Float64}(undef, nx+4)
-    u_aux[3:nx+2] = u
-    u_aux[1] = u_aux[nx+1]
-    u_aux[2] = u_aux[nx+2]
-    u_aux[nx+3] = u_aux[3]
-    u_aux[nx+4] = u_aux[4]
+    u_aux = bcs_periodic(nx, u)
 
     for i = 3:nx+2
         a[i] = max(abs(u_aux[i-2]), abs(u_aux[i-1]),abs(u_aux[i]),abs(u_aux[i+1]),abs(u_aux[i+2]))
     end
-    # for i = 3:nx-2
-    #     a[i] = max(abs(u[i-2]), abs(u[i-1]),abs(u[i]),abs(u[i+1]),abs(u[i+2]))
-    # end
-    # # periodicity
-	# i = 1
-	# ps[i] = max(abs(u[n-1]), abs(u[n]), abs(u[i]), abs(u[i+1]), abs(u[i+2]))
-	# i = 2
-	# ps[i] = max(abs(u[n]), abs(u[i-1]), abs(u[i]), abs(u[i+1]), abs(u[i+2]))
-	# i = n-1
-	# ps[i] = max(abs(u[i-2]), abs(u[i-1]), abs(u[i]), abs(u[i+1]), abs(u[1]))
-	# i = n
-	# ps[i] = max(abs(u[i-2]), abs(u[i-1]), abs(u[i]), abs(u[1]), abs(u[2]))
 end
+
 
 """
 WENO reconstruction for upwind direction (positive; left to right)
@@ -158,10 +156,16 @@ WENO reconstruction for upwind direction (positive; left to right)
 Periodic Boundary Conditions w/ changed starting point
 
     nx :int: number of x points
-    u :array: solution field, dims: (nx, ns)
+    u :array: solution field, dims: (nx)
 
     Returns:
         f :array: reconstructed values at nodes (nx+1)
 """
 function wenoL(nx, u)
+    f = Array{Float64}(undef, nx+1)
+    f_aux = Array{Float64}(undef, nx+1)
+    u_aux = bcs_periodic(nx, u) # |n-1|n|1|2|3|...|n-2|n-1|n|1|2|
+    for i = 3:nx+2
+        f[i] = u_aux[i-2]
+         
 end
