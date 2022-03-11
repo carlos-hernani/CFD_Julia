@@ -47,9 +47,10 @@ function numerical_weno_p!(xlim, dx, tlim, dt, icf, ff, ns, u)
     # store the solution at t=0
     u[:, 1] = icf.(x)
     
+    # TVD RK3 time integration
     for n = 1:nt # iterations (time step)
 
-        # rhs?
+        rhs!(nx, dx, u, ff, r)
 
 end
 
@@ -70,7 +71,7 @@ at the interface.
 
     nx :int: number of x points
     dx :float: step value of x
-    u :array: solution field, dims: (nx, ns)
+    u :array: solution field, dims: (nx)
     ff :function: flux, function of 'u'
 
     Modifies:
@@ -80,9 +81,30 @@ at the interface.
 function rhs!(nx, dx, u, ff, r)
     #1 We first compute the flux at the nodal points.
     f = ff.(u)
-    #2 Lax-Friedrichs flux splitting.
-    fP = 0.5*()
+    #   # Wave speed at nodal points
+    a = Array{Float64}(undef, nx)
+    wavespeed!(nx, u, a)
+    #2 Lax-Friedrichs positive & negative flux splitting.
+    fP = 0.5*(f .+ a.*u)
+    fN = 0.5*(f .- a.*u)
+
+    # WENO Reconstruction
+    # compute upwind reconstruction for positive flux (left to right)
+	fL = wenoL(nx,fP)
+	# compute downwind reconstruction for negative flux (right to left)
+    fR = wenoR(nx,fN)
+
+	# compute RHS using flux splitting
 end
+
+"""
+Periodic Boundary Conditions
+
+Creates an array with extra values with imposed periodicity.
+
+
+"""
+function bcs_periodic(nx, u)
 
 """
 Computes the absolute value of the flux Jacobian
@@ -105,7 +127,7 @@ Periodic Boundary Conditions!! (1,2,n-1,n) 3 possible ways:
         a :array: alpha, wave speed
 
 """
-function wavespeed(nx, u, a)
+function wavespeed!(nx, u, a)
     u_aux = Array{Float64}(undef, nx+4)
     u_aux[3:nx+2] = u
     u_aux[1] = u_aux[nx+1]
@@ -128,4 +150,18 @@ function wavespeed(nx, u, a)
 	# ps[i] = max(abs(u[i-2]), abs(u[i-1]), abs(u[i]), abs(u[i+1]), abs(u[1]))
 	# i = n
 	# ps[i] = max(abs(u[i-2]), abs(u[i-1]), abs(u[i]), abs(u[1]), abs(u[2]))
+end
+
+"""
+WENO reconstruction for upwind direction (positive; left to right)
+
+Periodic Boundary Conditions w/ changed starting point
+
+    nx :int: number of x points
+    u :array: solution field, dims: (nx, ns)
+
+    Returns:
+        f :array: reconstructed values at nodes (nx+1)
+"""
+function wenoL(nx, u)
 end
